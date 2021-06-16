@@ -24,6 +24,7 @@ export default function Home(){
         .child(uid)
         .once('value', (snapshot) => {
             setHistorico([]);
+            
 
             snapshot.forEach((childItem) => {
                 if(childItem.val().nome === input){
@@ -34,7 +35,7 @@ export default function Home(){
                         município: childItem.val().município,
                         nome: childItem.val().nome,
                     };
-                    setHistorico(oldArray => [...oldArray, list], reverse());
+                    setHistorico(oldArray => [...oldArray, list].reverse());
                 }else{
                     console.log('NAO TEM NADA AQUI');
                 }

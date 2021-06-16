@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput,Image, 
-    Dimensions, Platform, ScrollView, Alert} from 'react-native';
+    Dimensions, Platform, ScrollView, Alert, PermissionsAndroid} from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import { connect } from 'react-redux';
 import { addPost } from '../../store/actions/posts';
@@ -13,6 +13,7 @@ class Galeria extends Component{
         comment: '',
         serviço: '',
     }
+
     
     pickImage = () =>{
         ImagePicker.showImagePicker({

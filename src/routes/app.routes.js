@@ -11,8 +11,7 @@ import Profissionais from '../pages/Profissionais';
 import RegistrosProfissionais from '../pages/RegistrosProfissionais';
 import CadastroServiços from '../pages/CadastroServiços';
 import Materiais from '../pages/Materiais';
-
-import { NavigationContainer } from '@react-navigation/native';
+import ServiçosTerceiros from '../pages/ServiçosTerceiros';
 
 const AppDrawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -57,6 +56,10 @@ function AppRoutes(){
             <AppDrawer.Screen 
             name="Cadastro de Profissionais"
             component={Profissionais}
+            />
+            <AppDrawer.Screen 
+            name="Cadastro de Serviços Terceiros"
+            component={ServiçosTerceiros}
             />
             
             <AppDrawer.Screen 

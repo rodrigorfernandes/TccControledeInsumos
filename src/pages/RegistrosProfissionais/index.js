@@ -7,6 +7,7 @@ import { AuthContext } from '../../contexts/auth';
 import Header from '../../components/Header';
 import HistoricoList2 from '../../components/HistoricoList2';
 import HistoricoList3 from '../../components/HistoricoList3';
+import HistoricoList4 from '../../components/HistoricoList4';
 
 import { Container, AreaTitulo, Titulo,AreaInput, Input, AreaSaldo, Saldo,
         Quantidade, SubmitButton, SubmitText, List, AreaList} from './styles';
@@ -22,13 +23,16 @@ export default function RegistrosProfissionais(){
     const [profissionais, setProfissionais] =useState([]);
     const [saldo, setSaldo] = useState(0);
     const [quantprofissionais, setQuantprofissionais] = useState(0);
+    const [quantprofissionais2, setQuantprofissionais2] = useState(0);
+    const [quantproduzida, setQuantproduzida] = useState(0);
+    const [quantmateriais, setQuantmateriais] = useState(0);
     const [materiais, setMateriais] = useState([]);
-    const [quantidade, setQuantidade] = useState('');
-
-    const [material, setMaterial] = useState('');
-    const [unidade, setUnidade] = useState('');
-    const [valor, setValor] = useState('');
-    const [quantidadem, setQuantidadem] = useState('');
+    const [terceiros, setTerceiros] = useState([]);
+    const [unidade, setUnidade] = useState([]);
+    const [tipo3, setTipo3] = useState([]);
+    const [tipo4, setTipo4] = useState([]);
+    
+    
 
     const {user} = useContext(AuthContext);
     const uid = user && user.uid;
@@ -45,13 +49,15 @@ export default function RegistrosProfissionais(){
                         key: childItem.key,
                         nome: childItem.val().nome,
                         quantidade: childItem.val().quantidade,
+                        quantidadeprod: childItem.val().quantidadeprod,
+                        tipo4: childItem.val().tipo4,
                         serviço: childItem.val().serviço,
                         salario: childItem.val().salario,
                         tipo: childItem.val().tipo,
                         date: childItem.val().date
                         
                     };
-                    setProfissionais(oldArray => [...oldArray, list]);
+                    setProfissionais(oldArray => [...oldArray, list].reverse());
                 }else{
                     console.log('NAO TEM NADA AQUI');
                 }
@@ -61,7 +67,11 @@ export default function RegistrosProfissionais(){
         Keyboard.dismiss();
         loadingSaldo();
         loadingQuantidade();
+        loadingQuantidade2();
+        loadingQuantidadeProduzida();
+        loadingUnidade();
         loadingList3();
+        loadingList4();
     }
     async function loadingList3(){
         await firebase.database().ref('materiais')
@@ -81,7 +91,7 @@ export default function RegistrosProfissionais(){
                         unidade: childItem.val().unidade,
                         date: childItem.val().date
                     };
-                    setMateriais(oldArray => [...oldArray, list], reverse());
+                    setMateriais(oldArray => [...oldArray, list].reverse());
                 }else{
                     console.log('NAO TEM NADA AQUI');
                 }
@@ -91,6 +101,44 @@ export default function RegistrosProfissionais(){
         Keyboard.dismiss();
         loadingSaldo();
         loadingQuantidade();
+        loadingQuantidade2();
+        loadingQuantidadeProduzida();
+        loadingUnidade();
+    }
+
+    async function loadingList4(){
+        await firebase.database().ref('terceiros')
+        .child(nome).child(serviço)
+        .once('value', (snapshot) => {
+            setTerceiros([]);
+
+            snapshot.forEach((childItem) => {
+                if(childItem.val().nome === nome){
+                    let list = {
+                        key: childItem.key,
+                        nome: childItem.val().nome,
+                        quantidadet: childItem.val().quantidadet,
+                        serviço: childItem.val().serviço,
+                        terceiro: childItem.val().terceiro,
+                        tipo: childItem.val().tipo,
+                        valor: childItem.val().valor,
+                        unidade: childItem.val().unidade,
+                        date: childItem.val().date
+                    };
+                    setTerceiros(oldArray => [...oldArray, list].reverse());
+                    
+                }else{
+                    console.log('NAO TEM NADA AQUI');
+                }
+            })
+        });
+
+        Keyboard.dismiss();
+        loadingSaldo();
+        loadingQuantidade();
+        loadingQuantidade2();
+        loadingQuantidadeProduzida();
+        loadingUnidade();
     }
     
     async function loadingSaldo(){
@@ -102,6 +150,24 @@ export default function RegistrosProfissionais(){
     async function loadingQuantidade(){
         await firebase.database().ref('serviços').child(nome).child(serviço).on('value', (snapshot)=>{
             setQuantprofissionais(snapshot.val().quantprofissionais)
+        })
+    }
+
+    async function loadingQuantidade2(){
+        await firebase.database().ref('serviços').child(nome).child(serviço).on('value', (snapshot)=>{
+            setQuantprofissionais2(snapshot.val().quantprofissionais2)
+        })
+    }
+
+    async function loadingQuantidadeProduzida(){
+        await firebase.database().ref('serviços').child(nome).child(serviço).on('value', (snapshot)=>{
+            setQuantproduzida(snapshot.val().quantproduzida)
+        })
+    }
+
+    async function loadingUnidade(){
+        await firebase.database().ref('serviços').child(nome).child(serviço).on('value', (snapshot)=>{
+            setUnidade(snapshot.val().unidade)
         })
     }
 
@@ -135,9 +201,23 @@ export default function RegistrosProfissionais(){
             await firebase.database().ref('serviços').child(nome).child(serviço).child('saldo').set(saldoAtual);
 
             let quantprofissionaisAtual = quantprofissionais
-            quantprofissionaisAtual -= parseFloat(data.quantidade)
+            let quantprofissionaisAtual2 = quantprofissionais2
 
+            if (data.tipo  === 'ajudante'){
+                quantprofissionaisAtual2 -= parseFloat(data.quantidade)
+             }else {
+                quantprofissionaisAtual -= parseFloat(data.quantidade)
+             }
+           
             await firebase.database().ref('serviços').child(nome).child(serviço).child('quantprofissionais').set(quantprofissionaisAtual);
+            await firebase.database().ref('serviços').child(nome).child(serviço).child('quantprofissionais2').set(quantprofissionaisAtual2);
+                
+            let quantproduzidaAtual = quantproduzida
+            quantproduzidaAtual -= parseFloat(data.quantidadeprod)
+
+            await firebase.database().ref('serviços').child(nome).child(serviço).child('quantproduzida').set(quantproduzidaAtual);
+        
+            
         })
         .catch((error)=>{
             console.log(error);
@@ -147,6 +227,7 @@ export default function RegistrosProfissionais(){
         setServiço();
         loadingList2();
         loadingList3();
+        loadingList4();
 
     }
     function handleSubmit2(data){
@@ -190,6 +271,51 @@ export default function RegistrosProfissionais(){
         setServiço();
         loadingList2();
         loadingList3();
+        loadingList4();
+    }
+    function handleSubmit3(data){
+        Keyboard.dismiss();
+
+        Alert.alert(
+            'Mensagem',
+            'Tem certeza que deseja deletar esse item?',
+            [
+                {
+                    text: 'Não',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Sim',
+                    onPress: () => handleDelete3(data)
+
+                }
+            ]
+        )
+    }
+
+    async function handleDelete3(data){
+        
+        await firebase.database().ref('terceiros').child(nome).child(serviço).child(data.key).remove()
+        .then( async () => {
+            let saldoAtual = saldo;
+            saldoAtual -= (parseFloat(data.valor)*parseFloat(data.quantidadet))
+            
+            await firebase.database().ref('serviços').child(nome).child(serviço).child('saldo').set(saldoAtual);
+
+            let quantproduzidaAtual = quantproduzida
+            quantproduzidaAtual -= parseFloat(data.quantidadet)
+
+            await firebase.database().ref('serviços').child(nome).child(serviço).child('quantproduzida').set(quantproduzidaAtual);
+        })
+
+        
+
+        
+        setNome();
+        setServiço();
+        loadingList2();
+        loadingList3();
+        loadingList4();
     }
 
 
@@ -198,12 +324,14 @@ export default function RegistrosProfissionais(){
         <ScrollView>
         <Header/>
         <AreaTitulo>
-            <Titulo>Registros</Titulo>
+            <Titulo>Registros de Serviços</Titulo>
         </AreaTitulo>
 
         <AreaSaldo>
             <Saldo>R$ {saldo.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')}</Saldo>
             <Quantidade>{quantprofissionais} horas de profissionais</Quantidade>
+            <Quantidade>{quantprofissionais2} horas de ajudantes</Quantidade>
+            <Quantidade>{quantproduzida.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')} {unidade} executados</Quantidade>
         </AreaSaldo>
 
         <AreaInput>
@@ -252,6 +380,15 @@ export default function RegistrosProfissionais(){
                 keyExtractor={item => item.key}
                 data={materiais}
                 renderItem={ ({item}) => <HistoricoList3 data={item} deleteItem={handleSubmit2}/> }
+                
+            />
+            </AreaList>
+
+            <AreaList>
+            <List 
+                keyExtractor={item => item.key}
+                data={terceiros}
+                renderItem={ ({item}) => <HistoricoList4 data={item} deleteItem={handleSubmit3}/> }
                 
             />
             </AreaList>

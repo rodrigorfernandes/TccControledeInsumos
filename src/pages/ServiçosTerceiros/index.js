@@ -1,34 +1,31 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext} from 'react';
 import {SafeAreaView, Keyboard, TouchableWithoutFeedback, ScrollView, Alert} from 'react-native';
 import { format, parse } from 'date-fns';
 import firebase from '../../services/firebaseConnection';
 import { AuthContext } from '../../contexts/auth'
 import Header from '../../components/Header';
 import { Background, AreaTitulo, TextTitulo, Input, SubmitButton, SubmitText } from './styles';
-import Picker from '../../components/Picker';
-import Picker2 from '../../components/Picker2';
 import Picker3 from '../../components/Picker3';
 import Picker4 from '../../components/Picker4';
 
-export default function Profissionais(){
+
+export default function ServiçosTerceiros(){
 
     const [nome, setNome] = useState('');
     const [serviço, setServiço] = useState('');
-    const [tipo, setTipo] = useState([]);
-    const [tipo3, setTipo3] = useState([]);
-    const [tipo4, setTipo4] = useState([]);
-    const [tipoObra, setTipoObra] = useState([]);
+    const [tipo, setTipo] = useState(null);
+    const [tipo3, setTipo3] = useState(null);
+    const [tipo4, setTipo4] = useState(null);
+    const [terceiro, setTerceiro] = useState('');
+    const [unidade, setUnidade] = useState('');
     const [valor, setValor] = useState('');
-    const [quantidade, setQuantidade] = useState('');
+    const [quantidadet, setQuantidadet] = useState('');
     const { user: usuario } = useContext(AuthContext);
-    const [quantidadeprod, setQuantidadeprod] = useState('');
     
-    
-
 
     function handleSubmit(){
         Keyboard.dismiss();
-        if(nome === '' || serviço === '' || tipo === [] || tipo3 === [] || tipo4 === [] || quantidade === '' || valor === ''){
+        if(nome === '' || serviço === '' || tipo3 === '' || tipo4 === '' || terceiro === '' || quantidadet === '' || valor === ''){
             alert('Preencha todos os campos!');
             return;
         }else{
@@ -40,18 +37,16 @@ export default function Profissionais(){
         let uid = usuario.uid;
         
         
-        let key = await firebase.database().ref('profissionais').child(uid).push().key;
-            await firebase.database().ref('profissionais').child(nome).child(serviço).child(key).set({
+        let key = await firebase.database().ref('terceiros').child(uid).push().key;
+            await firebase.database().ref('terceiros').child(nome).child(serviço).child(key).set({
             nome: nome,
             serviço: serviço,
-            tipo: tipo,
+            terceiro: terceiro, 
             tipo3: tipo3,
-            tipo4: tipo4,
-            quantidadeprod: parseFloat(quantidadeprod),
-            quantidade: parseFloat(quantidade),
-            salario: parseFloat(valor),
+            quantidadet: parseFloat(quantidadet),
+            valor: parseFloat(valor),
+            unidade: tipo4,
             date: format(new Date(), 'dd/MM/yy'),
-            
         });
 
    
@@ -59,33 +54,28 @@ export default function Profissionais(){
         let user = firebase.database().ref('serviços').child(nome).child(serviço);
         await user.once('value').then((snapshot)=>{
             let saldo = parseFloat(snapshot.val().saldo);
-            let quantprofissionais = parseFloat(snapshot.val().quantprofissionais);
-            let quantprofissionais2 = parseFloat(snapshot.val().quantprofissionais2);
+            let quantterceiros = parseFloat(snapshot.val().quantterceiros);
             let quantproduzida = parseFloat(snapshot.val().quantproduzida);
 
-            saldo += ((parseFloat(valor))*(parseFloat(quantidade)));
-            
-            quantproduzida += (parseFloat(quantidadeprod));
+            saldo += ((parseFloat(valor))*(parseFloat(quantidadet)));
+            quantterceiros += (parseFloat(quantidadet));
+            quantproduzida += (parseFloat(quantidadet));
 
-            if (tipo  === 'ajudante'){
-                quantprofissionais2 += (parseFloat(quantidade));
-             }else {
-                 quantprofissionais += (parseFloat(quantidade));
-
-             }
-             
             user.child('saldo').set(saldo);
-            user.child('quantprofissionais').set(quantprofissionais);
-            user.child('quantprofissionais2').set(quantprofissionais2);
+            user.child('quantterceiros').set(quantterceiros);
             user.child('quantproduzida').set(quantproduzida);
         });
+
 
         Keyboard.dismiss();
         setNome('');
         setServiço('');
-        setTipo([]);
+        setTipo3([]);
+        setTipo4([]);
+        setUnidade('');
+        setTerceiro('');
         setValor('');
-        setQuantidade('');
+        setQuantidadet('');
         
         
    }
@@ -96,7 +86,7 @@ export default function Profissionais(){
         <ScrollView>
             <Header/>
             <AreaTitulo>
-                <TextTitulo>Cadastro de mão de obra</TextTitulo>
+                <TextTitulo>Cadastro de Empreiteiros</TextTitulo>
             </AreaTitulo>
             <SafeAreaView style={{alignItems: 'center' }}>
 
@@ -117,39 +107,37 @@ export default function Profissionais(){
                 onChangeText={(texto) => setServiço(texto)}
                 
                 />
-                <Picker onChange={setTipo}/>
+                
+                <Input
+                placeholder="Empreiteira"
+                value={terceiro}
+                autoCorrect={false}
+                autoCapitalize= "none"
+                onChangeText={(texto) => setTerceiro(texto)}
+                
+                />
+
+                <Picker3 onChange={setTipo3}/>
+
+                <Picker4 onChange={setTipo4}/>
 
                 <Input 
-                placeholder="Quantidade de horas trabalhadas"
+                placeholder="Quantidade"
                 keyboardType="numeric"
                 returnKeyType="next"
                 onSubmitEditing={ ()=> Keyboard.dismiss()}
-                value={quantidade}
-                onChangeText={ (text) => setQuantidade(text) }
+                value={quantidadet}
+                onChangeText={ (text) => setQuantidadet(text) }
                 />
 
-                <Picker2 onChange={setTipoObra}/>
-                
-                <Picker3 onChange={setTipo3}/>
-
                 <Input 
-                placeholder="Salário Hora"
+                placeholder="Valor unitário"
                 keyboardType="numeric"
                 returnKeyType="next"
                 onSubmitEditing={ ()=> Keyboard.dismiss()}
                 value={valor}
                 onChangeText={ (text) => setValor(text) }
                 />
-
-                <Input 
-                placeholder="Quantidade produzida"
-                keyboardType="numeric"
-                returnKeyType="next"
-                onSubmitEditing={ ()=> Keyboard.dismiss()}
-                value={quantidadeprod}
-                onChangeText={ (text) => setQuantidadeprod(text) }
-                />
-                <Picker4 onChange={setTipo4}/>
                 
                 <SubmitButton onPress={handleSubmit}>
                     <SubmitText>Adicionar</SubmitText>

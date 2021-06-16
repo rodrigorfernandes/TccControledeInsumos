@@ -12,7 +12,9 @@ export default function HistoricoList2({data, deleteItem}){
             <TipoText>Profissional:</TipoText>
             <ValorText>{data.tipo}</ValorText>
             <TipoText>Quantidade de horas:</TipoText>
-            <ValorText>{data.quantidade}</ValorText>
+            <ValorText>{data.quantidade} horas</ValorText>
+            <TipoText>Quantidade produzida:</TipoText>
+            <ValorText>{data.quantidadeprod} {data.tipo4} </ValorText>
             <TipoText>Salário Hora:</TipoText>
             <ValorText>R$ {data.salario.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')}</ValorText>
             <TipoText>Valor parcial gasto:</TipoText>

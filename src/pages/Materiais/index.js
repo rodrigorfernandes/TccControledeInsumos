@@ -5,15 +5,16 @@ import firebase from '../../services/firebaseConnection';
 import { AuthContext } from '../../contexts/auth'
 import Header from '../../components/Header';
 import { Background, AreaTitulo, TextTitulo, Input, SubmitButton, SubmitText } from './styles';
+import Picker3 from '../../components/Picker3';
 
-import HistoricoList2 from '../../components/HistoricoList2';
 
 
-export default function Profissionais(){
+
+export default function Materiais(){
 
     const [nome, setNome] = useState('');
     const [serviço, setServiço] = useState('');
-    const [tipo, setTipo] = useState(null);
+    const [tipo, setTipo] = useState([]);
     const [material, setMaterial] = useState('');
     const [unidade, setUnidade] = useState('');
     const [valor, setValor] = useState('');
@@ -51,7 +52,7 @@ export default function Profissionais(){
         let user = firebase.database().ref('serviços').child(nome).child(serviço);
         await user.once('value').then((snapshot)=>{
             let saldo = parseFloat(snapshot.val().saldo);
-            let quantmateriais = parseFloat(snapshot.val().quantprofissionais);
+            let quantmateriais = parseFloat(snapshot.val().quantmateriais);
 
             saldo += ((parseFloat(valor))*(parseFloat(quantidadem)));
             quantmateriais += (parseFloat(quantidadem));
@@ -59,10 +60,13 @@ export default function Profissionais(){
             user.child('saldo').set(saldo);
             user.child('quantmateriais').set(quantmateriais);
         });
-
+        
         Keyboard.dismiss();
         setNome('');
-        setTipo(null);
+        setServiço('');
+        setMaterial('');
+        setUnidade('');
+        setTipo([]);
         setValor('');
         setQuantidadem('');
         
@@ -105,6 +109,8 @@ export default function Profissionais(){
                 onChangeText={(texto) => setMaterial(texto)}
                 
                 />
+
+                <Picker3 onChange={setTipo}/>
 
                 <Input
                 placeholder="Unidade de medida"

@@ -37,15 +37,19 @@ export default function CadastroServiços(){
             date: format(new Date(), 'dd/MM/yy'),
             saldo: 0,
             quantprofissionais: 0,
+            quantprofissionais2: 0,
             quantmateriais: 0,
+            quantterceiros: 0,
+            quantproduzida: 0,
             
         });
         
 
         Keyboard.dismiss();
         setNome('');
-        setTipo(null);
-        setValor('');
+        setTipo([]);
+        setServiço('')
+        setUnidade('');
         setQuantidade('');
         
         

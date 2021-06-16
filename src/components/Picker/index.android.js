@@ -24,6 +24,7 @@ export default function Picker({onChange}){
                 {label: 'Ajudante', value: 'ajudante', color: '#222'},
                 {label: 'Armador', value: 'armador', color: '#222'},
                 {label: 'Carpinteiro', value: 'carpinteiro', color: '#222'},
+                {label: 'Empreiteiro', value: 'empreiteiro', color: '#222'},
                 {label: 'Eletricista', value: 'eletricista', color: '#222'},
                 {label: 'Encanador', value: 'encanador', color: '#222'},
                 {label: 'Encanador Industrial', value: 'encanadorindustrial', color: '#222'},
